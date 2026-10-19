@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Games Master</title>
+<meta name="description" content="Classic games in one calm, polished app: Ludo, chess, puzzles and more.">
+<meta name="theme-color" content="#0F1528">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Games Master">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600&display=swap">
+<style>
+:root {
+  --bg: #0F1528; --raise: #161E37; --raise-2: #1D2645;
+  --line: rgba(205, 214, 245, .09); --line-2: rgba(205, 214, 245, .17);
+  --ink: #ECE8DF; --ink-2: #A3ABC2; --ink-3: #6E7794;
+  --sun: #F2C063; --sun-soft: rgba(242, 192, 99, .17); --on-sun: #1D1505;
+  --dome-in: #0A0F21; --dome-out: #1A2448;
+  --red: #E5604D; --green: #5DBB7A; --yellow: #EBC24F; --blue: #5B9BE8; --orange: #EBA24F; --purple: #9B7AE0;
+  --sans: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: dark;
+}
+:root[data-theme="red"] { --bg: #0C0404; --raise: #160707; --raise-2: #1F0A0A; --line: rgba(255, 90, 70, .12); --line-2: rgba(255, 90, 70, .22); --ink: #E2573F; --ink-2: #A9412F; --ink-3: #74291F; --sun: #FF5B3D; --sun-soft: rgba(255, 91, 61, .18); --on-sun: #1A0503; --dome-in: #070202; --dome-out: #1E0808; }
+:root[data-theme="amber"] { --bg: #0D0904; --raise: #171008; --raise-2: #20170C; --line: rgba(255, 190, 110, .10); --line-2: rgba(255, 190, 110, .20); --ink: #EBC48A; --ink-2: #A98A5C; --ink-3: #6F5A3B; --sun: #FFB04A; --sun-soft: rgba(255, 176, 74, .18); --on-sun: #1A0F02; --dome-in: #080502; --dome-out: #241809; }
+:root[data-theme="sea"] { --bg: #06121A; --raise: #0B1C26; --raise-2: #102632; --line: rgba(150, 220, 230, .09); --line-2: rgba(150, 220, 230, .18); --ink: #D6E9EC; --ink-2: #8EAEB4; --ink-3: #5A7880; --sun: #6FD9D0; --sun-soft: rgba(111, 217, 208, .16); --on-sun: #031513; --dome-in: #030B10; --dome-out: #0F2A38; }
+:root[data-theme="aurora"] { --bg: #07110D; --raise: #0C1A14; --raise-2: #11241B; --line: rgba(150, 235, 190, .09); --line-2: rgba(150, 235, 190, .18); --ink: #D7EBDF; --ink-2: #8DAA9A; --ink-3: #5A7566; --sun: #86E3A8; --sun-soft: rgba(134, 227, 168, .16); --on-sun: #04140B; --dome-in: #040A07; --dome-out: #12291E; }
+:root[data-theme="dusk"] { --bg: #110D1A; --raise: #1A1426; --raise-2: #221A31; --line: rgba(210, 190, 255, .09); --line-2: rgba(210, 190, 255, .18); --ink: #E8E1F4; --ink-2: #A79CBD; --ink-3: #6E6485; --sun: #F2A7C8; --sun-soft: rgba(242, 167, 200, .16); --on-sun: #1E0812; --dome-in: #0A0712; --dome-out: #261C3A; }
+:root[data-theme="paper"] { --bg: #F3F0E8; --raise: #FFFFFF; --raise-2: #E8E4D9; --line: rgba(30, 35, 60, .10); --line-2: rgba(30, 35, 60, .20); --ink: #1D2133; --ink-2: #4F566B; --ink-3: #7A8097; --sun: #B9751A; --sun-soft: rgba(185, 117, 26, .15); --on-sun: #FFFFFF; --dome-in: #FFFFFF; --dome-out: #E8E4D9; color-scheme: light; }
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 16px/1.45 var(--sans); -webkit-font-smoothing: antialiased; min-height: 100vh; min-height: 100dvh; overscroll-behavior-y: none;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+button, input { font: inherit; color: inherit; }
+button { background: none; border: 0; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; border-radius: 8px; }
+.num { font-variant-numeric: tabular-nums; }
+.wrap { max-width: 34rem; margin: 0 auto; padding: 0 20px 48px; position: relative; }
+[hidden] { display: none !important; }
+
+/* Header */
+header.top { display: flex; align-items: center; justify-content: space-between; padding: 18px 0 6px; }
+.mark { font-weight: 600; font-size: 17px; letter-spacing: -.01em; }
+.tools { display: flex; gap: 4px; margin-right: -8px; }
+.icon-btn { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: var(--ink-2); position: relative; flex: none; }
+.icon-btn:active { background: var(--raise); }
+.icon-btn svg { width: 22px; height: 22px; }
+.icon-btn[aria-pressed="true"] { color: var(--sun); }
+.icon-btn:disabled { opacity: .35; cursor: default; }
+
+/* Notices */
+.notice { display: flex; gap: 12px; align-items: center; margin: 10px 0 0; padding: 10px 12px 10px 14px; border-radius: 14px; background: var(--raise); font-size: 14px; color: var(--ink-2); }
+.notice p { margin: 0; flex: 1; }
+.notice .link-btn { color: var(--sun); font-weight: 600; white-space: nowrap; text-decoration: none; }
+.notice .x { color: var(--ink-3); width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; }
+.notice .x svg { width: 16px; height: 16px; }
+
+/* Hub */
+.hero { padding: 18px 0 26px; }
+.hero-title { margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -.015em; }
+.story { margin: 12px 0 0; font-size: 18px; font-weight: 300; line-height: 1.55; letter-spacing: .005em; max-width: 30em; }
+.facts { margin: 8px 0 0; font-size: 14px; color: var(--ink-2); }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; align-items: center; }
+.btn { height: 44px; padding: 0 18px; border-radius: 22px; background: var(--raise-2); font-weight: 600; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; white-space: nowrap; }
+.btn.primary { background: var(--sun); color: var(--on-sun); }
+.btn.small { height: 38px; font-size: 14px; padding: 0 14px; }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn:active { filter: brightness(.94); }
+.btn svg { width: 18px; height: 18px; }
+.link-btn { color: var(--ink-2); font-size: 14px; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line-2); }
+.section-title { margin: 8px 0 2px; font-size: 18px; font-weight: 600; letter-spacing: -.01em; }
+.game-row { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; padding: 14px 0; border-bottom: 1px solid var(--line); min-height: 76px; }
+.game-row:active { background: var(--raise); }
+.game-icon { flex: none; width: 48px; height: 48px; border-radius: 14px; background: var(--raise); display: grid; place-items: center; color: var(--sun); }
+.game-icon svg { width: 26px; height: 26px; }
+.game-text { flex: 1; min-width: 0; }
+.game-name { display: block; font-weight: 600; font-size: 17px; letter-spacing: -.005em; }
+.game-tag { display: block; font-size: 13.5px; color: var(--ink-2); }
+.game-stat { flex: none; font-size: 13px; color: var(--ink-3); text-align: right; max-width: 6.5rem; }
+.chev { flex: none; width: 18px; height: 18px; color: var(--ink-3); }
+.soon { margin-top: 28px; font-size: 14px; color: var(--ink-3); }
+.soon strong { color: var(--ink-2); font-weight: 500; }
+.foot { margin-top: 30px; font-size: 12.5px; color: var(--ink-3); }
+
+/* Game screen */
+#game { position: fixed; inset: 0; z-index: 4; background: var(--bg); display: flex; flex-direction: column;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); animation: fadein .2s ease-out; }
+@keyframes fadein { from { opacity: 0; transform: translateY(8px); } }
+.game-bar { flex: none; display: flex; align-items: center; gap: 2px; padding: 6px 12px 2px 6px; max-width: 34rem; width: 100%; margin: 0 auto; }
+.game-title { flex: 1; min-width: 0; margin: 0 0 0 4px; font-size: 18px; font-weight: 600; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#gameRoot { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; width: 100%; max-width: 34rem; margin: 0 auto; padding: 0 20px 20px; position: relative; }
+
+/* Sheets */
+dialog.sheet { position: fixed; inset: auto 0 0 0; margin: 0 auto; width: 100%; max-width: 34rem; max-height: 88vh; max-height: 88dvh; border: 0; border-radius: 22px 22px 0 0; padding: 0; background: var(--raise); color: var(--ink); overflow: auto; overscroll-behavior: contain; }
+dialog.sheet[open] { animation: rise .28s cubic-bezier(.2, .8, .2, 1); }
+dialog.sheet::backdrop { background: rgba(4, 6, 14, .62); }
+@keyframes rise { from { transform: translateY(40px); opacity: 0; } }
+.sheet-in { padding: 10px 22px calc(28px + env(safe-area-inset-bottom)); }
+.grabber { width: 36px; height: 4px; border-radius: 2px; background: var(--line-2); margin: 0 auto 10px; }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; }
+.sheet-head h2 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -.01em; }
+.sheet h3 { margin: 24px 0 8px; font-size: 15px; font-weight: 600; }
+.sheet p { margin: 6px 0; color: var(--ink-2); font-size: 15px; }
+.sheet .small, .small { font-size: 13.5px; color: var(--ink-3); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { height: 38px; padding: 0 15px; border-radius: 19px; background: var(--raise-2); font-size: 14px; font-weight: 500; color: var(--ink-2); }
+.chip[aria-pressed="true"] { background: var(--sun); color: var(--on-sun); }
+.chip:disabled { opacity: .4; }
+.toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.toggle-row + .toggle-row { margin-top: 10px; }
+.toggle-row p { margin: 0; color: var(--ink); }
+.switch { width: 50px; height: 30px; border-radius: 15px; background: var(--raise-2); position: relative; flex: none; transition: background .2s; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: var(--ink-2); transition: transform .2s, background .2s; }
+.switch[aria-checked="true"] { background: var(--sun); }
+.switch[aria-checked="true"]::after { transform: translateX(20px); background: var(--on-sun); }
+
+/* Theme picker popover */
+.pop { position: absolute; top: 64px; right: 12px; z-index: 5; width: min(300px, calc(100% - 24px)); padding: 16px 12px 12px; border-radius: 18px; background: var(--raise); border: 1px solid var(--line-2); box-shadow: 0 18px 40px rgba(0, 0, 0, .35); animation: drop .18s ease-out; transform-origin: top right; }
+@keyframes drop { from { opacity: 0; transform: translateY(-6px) scale(.98); } }
+.theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 6px; }
+.theme-opt { display: grid; justify-items: center; gap: 6px; padding: 4px 0; font-size: 12.5px; color: var(--ink-2); }
+.theme-opt[aria-pressed="true"] { color: var(--ink); }
+.sw { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line-2); background: radial-gradient(circle, var(--b) 0 6px, transparent 7px), radial-gradient(circle at 50% 35%, var(--c), var(--a)); }
+.theme-opt[aria-pressed="true"] .sw { box-shadow: 0 0 0 2px var(--raise), 0 0 0 4px var(--sun); }
+.theme-note { margin: 12px 4px 0; font-size: 12.5px; color: var(--ink-3); }
+
+/* Toast: a popover, so it shows above open sheets */
+.toast { position: fixed; inset: auto auto calc(24px + env(safe-area-inset-bottom)) 50%; margin: 0; border: 0; width: max-content; max-width: calc(100% - 40px); transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+  background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 22px; font-size: 14px; font-weight: 500; transition: opacity .2s, transform .2s; text-align: center; z-index: 50; overflow: visible; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div id="hub" class="wrap">
+  <header class="top">
+    <div class="mark">Games Master</div>
+    <div class="tools">
+      <button class="icon-btn" id="themeBtn" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="themes" aria-label="Colour theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/></svg>
+      </button>
+      <button class="icon-btn" id="settingsBtn" type="button" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
+      </button>
+    </div>
+  </header>
+  <div class="pop" id="themes" hidden role="group" aria-label="Colour theme"></div>
+  <div id="notices"></div>
+  <main>
+    <section class="hero" id="hero" aria-live="polite"></section>
+    <h2 class="section-title">All games</h2>
+    <div id="gameList"></div>
+    <p class="soon" id="soon"></p>
+  </main>
+  <p class="foot">Everything runs on this phone and works offline. Scores and progress stay here too.</p>
+</div>
+
+<section id="game" hidden aria-label="Game">
+  <div class="game-bar">
+    <button class="icon-btn" type="button" data-act="back" aria-label="Back to all games">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <h1 class="game-title" id="gameTitle"></h1>
+    <span id="gameTools" style="display:flex"></span>
+    <button class="icon-btn" type="button" id="soundBtn" data-act="sound" aria-pressed="true" aria-label="Sound">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13L7.5 14.5H4Z"/><path class="w" d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/><path class="m" d="M16 9.5l5 5M21 9.5l-5 5" style="display:none"/></svg>
+    </button>
+  </div>
+  <div id="gameRoot"></div>
+</section>
+
+<dialog class="sheet" id="sheet" aria-labelledby="sheetTitle"><div class="sheet-in" id="sheetBody"></div></dialog>
+<div class="toast" id="toast" role="status" popover="manual"></div>
+
+<script>window.GM = { games: {}, register(g) { this.games[g.id] = g; } };</script>
+<script src="core.js?v=1"></script>
+<script src="game-tictactoe.js?v=1"></script>
+<script src="game-blocks.js?v=1"></script>
+<script src="game-water.js?v=1"></script>
+<script src="game-ludo.js?v=1"></script>
+<script>
+(() => {
+'use strict';
+const GM = window.GM;
+const RELEASE = 1;
+
+/* ---------- Platform ---------- */
+const UA = navigator.userAgent;
+const isIOS = /iP(hone|ad|od)/.test(UA) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const canVibrate = typeof navigator.vibrate === 'function';
+
+/* ---------- Storage ---------- */
+const P = 'gmr.';   // unique to this app: every app on this GitHub account shares one origin
+const get = (k, d) => { try { const v = localStorage.getItem(P + k); return v == null ? d : JSON.parse(v); } catch { return d; } };
+const put = (k, v) => { try { localStorage.setItem(P + k, JSON.stringify(v)); } catch {} };
+
+const THEMES = [
+  { id: 'twilight', name: 'Twilight', bg: '#0F1528', dome: '#1A2448', accent: '#F2C063' },
+  { id: 'red', name: 'Night red', bg: '#0C0404', dome: '#1E0808', accent: '#FF5B3D' },
+  { id: 'amber', name: 'Amber', bg: '#0D0904', dome: '#241809', accent: '#FFB04A' },
+  { id: 'sea', name: 'Deep sea', bg: '#06121A', dome: '#0F2A38', accent: '#6FD9D0' },
+  { id: 'aurora', name: 'Aurora', bg: '#07110D', dome: '#12291E', accent: '#86E3A8' },
+  { id: 'dusk', name: 'Dusk', bg: '#110D1A', dome: '#261C3A', accent: '#F2A7C8' },
+  { id: 'paper', name: 'Paper', bg: '#F3F0E8', dome: '#E8E4D9', accent: '#B9751A' },
+];
+const S = { set: Object.assign({ theme: 'twilight', sound: true, haptics: true }, get('settings', {})), last: get('last', null), current: null, installEvt: null };
+const saveSet = () => put('settings', S.set);
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+const ICON = {
+  x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+  chev: '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>',
+  undo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>',
+  restart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 12a7.5 7.5 0 1 1-2.4-5.5"/><path d="M19.5 4.5v4h-4"/></svg>',
+  options: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+};
+
+/* ---------- Toast (a popover, so it is visible above open sheets) ---------- */
+let toastTimer;
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  try { if (t.matches(':popover-open')) t.hidePopover(); t.showPopover(); } catch {}
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.classList.remove('show'); try { if (t.matches(':popover-open')) t.hidePopover(); } catch {} }, Math.max(2200, msg.length * 55));
+}
+
+/* ---------- Sound (made on the spot, so there are no audio files to download) ---------- */
+let ac = null, noiseBuf = null;
+function audio() {
+  if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch { return null; } }
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  return ac;
+}
+function tone(freq, dur, type, vol, delay, to) {
+  const a = audio(); if (!a) return;
+  const t0 = a.currentTime + (delay || 0), o = a.createOscillator(), g = a.createGain();
+  o.type = type || 'sine';
+  o.frequency.setValueAtTime(freq, t0);
+  if (to) o.frequency.exponentialRampToValueAtTime(to, t0 + dur);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(vol || 0.08, t0 + 0.008);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  o.connect(g); g.connect(a.destination);
+  o.start(t0); o.stop(t0 + dur + 0.02);
+}
+function noise(dur, vol, freq, delay) {
+  const a = audio(); if (!a) return;
+  if (!noiseBuf) { noiseBuf = a.createBuffer(1, a.sampleRate, a.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+  const t0 = a.currentTime + (delay || 0), src = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+  src.buffer = noiseBuf; f.type = 'bandpass'; f.frequency.value = freq || 1800; f.Q.value = 1.2;
+  g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol || 0.05, t0 + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  src.connect(f); f.connect(g); g.connect(a.destination); src.start(t0); src.stop(t0 + dur + 0.02);
+}
+const SFX = {
+  tap: () => tone(560, 0.06, 'sine', 0.07),
+  mark: () => { tone(420, 0.09, 'triangle', 0.09); },
+  mark2: () => { tone(330, 0.09, 'triangle', 0.09); },
+  place: () => { tone(260, 0.1, 'triangle', 0.1, 0, 200); },
+  select: () => tone(640, 0.05, 'sine', 0.06),
+  clear: (n) => { for (let i = 0; i < Math.min(4, 2 + (n || 1)); i++) tone(520 * Math.pow(1.19, i), 0.14, 'sine', 0.08, i * 0.06); },
+  win: () => { [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.22, 'sine', 0.09, i * 0.09)); },
+  lose: () => { [330, 262, 196].forEach((f, i) => tone(f, 0.24, 'triangle', 0.08, i * 0.12)); },
+  draw: () => { tone(392, 0.16, 'sine', 0.07); tone(392, 0.2, 'sine', 0.06, 0.14); },
+  pour: () => { noise(0.45, 0.04, 1400); tone(300, 0.4, 'sine', 0.025, 0.02, 520); },
+  dice: () => { for (let i = 0; i < 5; i++) noise(0.03, 0.05, 2600, i * 0.08); },
+  step: () => tone(480, 0.04, 'sine', 0.045),
+  capture: () => { tone(300, 0.18, 'sawtooth', 0.05, 0, 120); },
+  home: () => { [587, 784, 988].forEach((f, i) => tone(f, 0.16, 'sine', 0.08, i * 0.07)); },
+  error: () => tone(180, 0.12, 'square', 0.04),
+};
+function sfx(name, arg) { if (!S.set.sound) return; try { SFX[name] && SFX[name](arg); } catch {} }
+function haptic(p) { if (S.set.haptics && canVibrate) { try { navigator.vibrate(p); } catch {} } }
+
+/* ---------- Themes ---------- */
+function themeGridHtml() {
+  return `<div class="theme-grid">${THEMES.map((t) => `<button class="theme-opt" type="button" data-theme="${t.id}" aria-pressed="${S.set.theme === t.id}">
+      <span class="sw" style="--a:${t.bg};--c:${t.dome};--b:${t.accent}"></span>${t.name}</button>`).join('')}</div>`;
+}
+function setTheme(id) {
+  const t = THEMES.find((x) => x.id === id) || THEMES[0];
+  S.set.theme = t.id; saveSet();
+  if (t.id === 'twilight') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t.id;
+  $('meta[name=theme-color]').setAttribute('content', t.bg);
+  document.querySelectorAll('.theme-opt').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.theme === t.id)));
+}
+function togglePop(open) {
+  const pop = $('#themes');
+  const show = open == null ? pop.hidden : open;
+  if (show) pop.innerHTML = themeGridHtml() + `<p class="theme-note">Night red and Amber are gentlest on eyes adjusted to the dark. Paper is the light one.</p>`;
+  pop.hidden = !show;
+  $('#themeBtn').setAttribute('aria-expanded', String(show));
+}
+// With the panel open, a tap anywhere outside it only closes it. Runs before any other tap handling.
+document.addEventListener('click', (e) => {
+  if ($('#themes').hidden || e.target.closest('#themes, #themeBtn')) return;
+  e.preventDefault(); e.stopPropagation(); togglePop(false);
+}, true);
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#themes').hidden) { togglePop(false); $('#themeBtn').focus(); } });
+
+/* ---------- Sheets ---------- */
+const sheet = $('#sheet');
+let sheetHandler = null;
+function openSheet(html, handler) {
+  $('#sheetBody').innerHTML = '<div class="grabber"></div>' + html;
+  sheetHandler = handler || null;
+  if (!sheet.open) { try { sheet.showModal(); } catch { sheet.setAttribute('open', ''); } }
+}
+function closeSheet() { sheetHandler = null; if (sheet.open) sheet.close(); }
+sheet.addEventListener('close', () => { sheetHandler = null; });
+sheet.addEventListener('click', (e) => { if (e.target === sheet) closeSheet(); });
+const head = (title) => `<div class="sheet-head"><h2 id="sheetTitle">${title}</h2><button class="icon-btn" type="button" data-sheet="close" aria-label="Close">${ICON.x}</button></div>`;
+sheet.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-sheet="close"]');
+  if (t) { closeSheet(); return; }
+  if (sheetHandler) sheetHandler(e);
+});
+
+/* ---------- Hub ---------- */
+const listed = () => Object.values(GM.games).sort((a, b) => a.order - b.order);
+const COMING = ['Tile Dom', 'Hexa Fall', 'Crazy Knife', 'Chess', 'Air Hockey', 'Carrom'];
+
+function renderHub() {
+  const games = listed();
+  const last = S.last && GM.games[S.last];
+  const hero = $('#hero');
+  if (last) {
+    let line = '';
+    try { line = last.summary((k, d) => get(last.id + '.' + k, d)); } catch {}
+    hero.innerHTML = `<h1 class="hero-title">Welcome back</h1>
+      <p class="story">${esc(last.name)}: ${esc(line || 'ready when you are.')}</p>
+      <div class="actions"><button class="btn primary" type="button" data-play="${esc(last.id)}">Continue ${esc(last.name)}</button></div>`;
+  } else {
+    hero.innerHTML = `<h1 class="hero-title">Pick a game</h1>
+      <p class="story">Classic games for one or two people, with no ads. They all work offline, so pick one and play.</p>`;
+  }
+  $('#gameList').innerHTML = games.map((g) => {
+    let stat = '';
+    try { stat = g.stat((k, d) => get(g.id + '.' + k, d)); } catch {}
+    return `<button class="game-row" type="button" data-play="${esc(g.id)}">
+      <span class="game-icon" aria-hidden="true">${g.icon}</span>
+      <span class="game-text"><span class="game-name">${esc(g.name)}</span><span class="game-tag">${esc(g.tagline)}</span></span>
+      <span class="game-stat num">${esc(stat)}</span>${ICON.chev}</button>`;
+  }).join('');
+  $('#soon').innerHTML = `<strong>On the way:</strong> ${COMING.join(', ')}.`;
+  renderNotices();
+}
+
+function renderNotices() {
+  const out = [];
+  const dismissed = get('dismissed', {});
+  if (!standalone && !dismissed.install) {
+    if (S.installEvt) out.push(`<div class="notice"><p>Add Games Master to your home screen for one-tap access.</p><button class="link-btn" type="button" data-act="install">Install</button><button class="x" type="button" data-dismiss="install" aria-label="Dismiss">${ICON.x}</button></div>`);
+    else if (isIOS) out.push(`<div class="notice"><p>Add Games Master to your Home Screen: tap Share, then Add to Home Screen.</p><button class="x" type="button" data-dismiss="install" aria-label="Dismiss">${ICON.x}</button></div>`);
+  }
+  $('#notices').innerHTML = out.join('');
+}
+
+/* ---------- Games ---------- */
+function updateSoundBtn() {
+  const b = $('#soundBtn'), on = !!S.set.sound;
+  b.setAttribute('aria-pressed', String(on));
+  b.setAttribute('aria-label', on ? 'Sound on. Tap to turn off' : 'Sound off. Tap to turn on');
+  $('.w', b).style.display = on ? '' : 'none';
+  $('.m', b).style.display = on ? 'none' : '';
+}
+
+function openGame(id, fromPop) {
+  const g = GM.games[id];
+  if (!g) return;
+  closeGame(true);
+  S.last = id; put('last', id);
+  $('#gameTitle').textContent = g.name;
+  $('#gameTools').innerHTML = '';
+  const root = $('#gameRoot');
+  root.innerHTML = ''; root.scrollTop = 0;
+  $('#game').hidden = false;
+  $('#hub').hidden = true;
+  document.body.style.overflow = 'hidden';
+  updateSoundBtn();
+  let toolHandler = null;
+  const ctx = {
+    id, root, reduced, isIOS, canVibrate,
+    get: (k, d) => get(id + '.' + k, d),
+    put: (k, v) => put(id + '.' + k, v),
+    sfx, haptic, toast, esc, openSheet, closeSheet, head, ICON,
+    setTitle: (t) => { $('#gameTitle').textContent = t; },
+    setTools: (list, handler) => {
+      toolHandler = handler;
+      $('#gameTools').innerHTML = list.map((t) => `<button class="icon-btn" type="button" data-tool="${esc(t.id)}" aria-label="${esc(t.label)}"${t.disabled ? ' disabled' : ''}>${t.svg}</button>`).join('');
+    },
+    toolState: (tid, disabled) => { const b = $(`#gameTools [data-tool="${tid}"]`); if (b) b.disabled = !!disabled; },
+  };
+  S.current = { id, ctx, toolHandler: (tid) => toolHandler && toolHandler(tid), inst: null };
+  try { S.current.inst = g.create(ctx); }
+  catch (err) { root.innerHTML = `<p class="story">Sorry, ${esc(g.name)} couldn’t start. Close Games Master fully and open it again.</p>`; }
+  if (!fromPop) history.pushState({ game: id }, '');
+}
+
+function closeGame(silent) {
+  if (!S.current) return;
+  try { S.current.inst && S.current.inst.destroy && S.current.inst.destroy(); } catch {}
+  S.current = null;
+  closeSheet();
+  $('#gameRoot').innerHTML = '';
+  $('#game').hidden = true;
+  $('#hub').hidden = false;
+  document.body.style.overflow = '';
+  if (!silent) renderHub();
+}
+window.addEventListener('popstate', () => { if (S.current) closeGame(); });
+
+/* ---------- Settings ---------- */
+function openSettings() {
+  openSheet(head('Settings') + `
+    <div class="toggle-row"><p>Sound<br><span class="small">Soft clicks and chimes, made on the phone</span></p>
+      <button class="switch" type="button" role="switch" data-set="sound" aria-checked="${!!S.set.sound}" aria-label="Sound"></button></div>
+    <div class="toggle-row"><p>Vibration<br><span class="small">${canVibrate ? 'A light tap on moves and wins' : 'Not available on this phone. iPhones don’t allow it.'}</span></p>
+      <button class="switch" type="button" role="switch" data-set="haptics" aria-checked="${!!S.set.haptics}" aria-label="Vibration"${canVibrate ? '' : ' disabled style="opacity:.4"'}></button></div>
+    <h3>Colour theme</h3>
+    ${themeGridHtml()}
+    <h3>Scores and progress</h3>
+    <p class="small">Everything is saved on this phone only.</p>
+    <div class="actions"><button class="btn small" type="button" data-set="reset">Reset all scores</button></div>
+    <p class="small" style="margin-top:22px">Games Master, release ${RELEASE}</p>`, (e) => {
+    const t = e.target.closest('button'); if (!t) return;
+    if (t.dataset.theme) { setTheme(t.dataset.theme); return; }
+    if (t.dataset.set === 'sound' || t.dataset.set === 'haptics') {
+      const k = t.dataset.set; S.set[k] = !S.set[k]; saveSet();
+      t.setAttribute('aria-checked', String(S.set[k])); updateSoundBtn();
+      if (k === 'sound' && S.set.sound) sfx('tap');
+      if (k === 'haptics' && S.set.haptics) haptic(20);
+      return;
+    }
+    if (t.dataset.set === 'reset') {
+      openSheet(head('Reset all scores?') + `<p>This clears best scores, win counts and saved games for every game. It can’t be undone.</p>
+        <div class="actions"><button class="btn primary" type="button" data-set="reset-yes">Reset everything</button><button class="btn" type="button" data-sheet="close">Cancel</button></div>`, (ev) => {
+        const b = ev.target.closest('button');
+        if (b && b.dataset.set === 'reset-yes') {
+          try { Object.keys(localStorage).filter((k) => k.startsWith(P) && !/^gmr\.(settings|dismissed)$/.test(k)).forEach((k) => localStorage.removeItem(k)); } catch {}
+          S.last = null; closeSheet(); renderHub(); toast('All scores reset');
+        }
+      });
+    }
+  });
+}
+
+/* ---------- Events ---------- */
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('button, a');
+  if (!t) return;
+  const d = t.dataset;
+  if (d.theme && !sheet.contains(t)) { setTheme(d.theme); return; }
+  if (d.play) { sfx('tap'); openGame(d.play); return; }
+  if (d.tool && S.current) { S.current.toolHandler(d.tool); return; }
+  if (d.dismiss) { const x = get('dismissed', {}); x[d.dismiss] = 1; put('dismissed', x); renderNotices(); return; }
+  switch (d.act) {
+    case 'back': if (history.state && history.state.game) history.back(); else closeGame(); break;
+    case 'sound': S.set.sound = !S.set.sound; saveSet(); updateSoundBtn(); if (S.set.sound) sfx('tap'); toast(S.set.sound ? 'Sound on' : 'Sound off'); break;
+    case 'install': if (S.installEvt) { S.installEvt.prompt(); S.installEvt = null; renderNotices(); } break;
+  }
+});
+$('#settingsBtn').addEventListener('click', openSettings);
+$('#themeBtn').addEventListener('click', () => togglePop());
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); S.installEvt = e; renderNotices(); });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && !S.current) renderHub(); });
+// first tap anywhere wakes the audio engine, which phones keep asleep until then
+document.addEventListener('pointerdown', () => { if (S.set.sound) audio(); }, { once: true, passive: true });
+
+/* ---------- Start ---------- */
+(function start() {
+  setTheme(S.set.theme);
+  renderHub();
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+})();
+})();
+</script>
+</body>
+</html>

@@ -3,7 +3,8 @@ const SHELL = ['./', 'index.html', 'core.js', 'game-tictactoe.js', 'game-blocks.
   'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 self.addEventListener('install', e => e.waitUntil(caches.open(CACHE)
   .then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting())));
-self.addEventListener('activate', e => e.waitUntil(caches.keys().then(k => Promise.all(k.filter(x => x !== CACHE).map(x => caches.delete(x)))).then(() => self.clients.claim())));
+// only clear Games Master's own old copies: other apps on quick-sheet.github.io (Walkie, Solitaire) share this cache store
+self.addEventListener('activate', e => e.waitUntil(caches.keys().then(k => Promise.all(k.filter(x => x.startsWith('gamesmaster-') && x !== CACHE).map(x => caches.delete(x)))).then(() => self.clients.claim())));
 const FONTS = /^https:\/\/fonts\.(googleapis|gstatic)\.com\//;
 self.addEventListener('fetch', e => {
   const req = e.request; if (req.method !== 'GET') return;
